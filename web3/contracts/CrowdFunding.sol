@@ -24,7 +24,7 @@ contract CrowdFunding {
         uint256 _target,
         uint256 _deadline,
         string memory _image
-    ) public return(uint256) {
+    ) public returns(uint256) {
         Campagin storage newCampaign = campagins[numberOfCampaigns];
 
         require(newCampaign.deadline < block.timestamp, unicode"截至时间不能早于创建时间!");
@@ -49,18 +49,24 @@ contract CrowdFunding {
         campaign.donators.push(msg.sender);
         campaign.donations.push(msg.value);
 
-        (bool sent) = payable(campaign.owner).call{value: msg.value}("");
+        (bool sent,) = payable(campaign.owner).call{value: msg.value}("");
 
         if(sent) {
             campaign.amountCollected = campaign.amountCollected + msg.value;
         }
     }
 
-    function getDonators() {
-        // return campagins[numberOfCampaigns].donators;
+    function getDonators(uint256 _id) view public returns(address[] memory, uint256[] memory) {
+        return (campagins[_id].donators, campagins[_id].donations);
     }
 
-    function getCampaigns() {
-        // return campagins;
+    function getCampaigns() view public returns(Campagin[] memory) {
+        Campagin[] memory _campagins = new Campagin[](numberOfCampaigns);
+
+        for(uint256 i = 0; i < numberOfCampaigns; i++) {
+            _campagins[i] = campagins[i];
+        }
+
+        return _campagins;
     }
 }
